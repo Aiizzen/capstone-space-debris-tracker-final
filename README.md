@@ -1,80 +1,110 @@
-# 🚀 Space Debris Tracker
+ 🚀 Space Debris Tracker
 
-A real-time, full-stack web application that visualizes space debris orbiting Earth. Built using FastAPI for the backend and Next.js with CesiumJS for the frontend.
+A real‑time, full‑stack web application that visualises orbital debris around Earth.  
+**Backend:** FastAPI + Skyfield + Space‑Track API  
+**Frontend:** Next.js (React + TypeScript) + CesiumJS + Tailwind CSS
 
 ![screenshot](./frontend/public/globe.svg)
 
-## 🌐 Live Demo
+---
 
-> Coming soon… (optional: add Vercel or Render deployment URL here)
+## 🌐 Live Demo
+<!-- Add your URL once deployed -->
+> Coming soon …  
 
 ---
 
-## 📦 Project Structure
+## 📦 Project Structure
 
-
----
-
-## ⚙️ Tech Stack
-
-### Backend (FastAPI)
-- Python 3.11+
-- FastAPI
-- Skyfield (orbital computation)
-- Space-Track.org API (TLE data)
-
-### Frontend (Next.js + CesiumJS)
-- React (TypeScript)
-- Tailwind CSS
-- CesiumJS for 3D Earth & orbital path rendering
-- Deployed with Vercel
+space‑debris‑tracker/
+├── backend/ # FastAPI + Skyfield
+│ ├── main.py
+│ ├── requirements.txt
+│ └── …
+├── frontend/ # Next.js + CesiumJS
+│ ├── next.config.ts
+│ ├── package.json
+│ ├── public/
+│ └── src/
+├── .gitignore
+├── README.md
+└── LICENSE
 
 ---
 
-## 🚧 Features
+## ⚙️ Tech Stack
 
-✅ Real-time space debris positions  
-✅ 3D Earth globe with CesiumJS  
-✅ Altitude-based color coding  
-✅ Hover + click popup info  
-✅ Filter by altitude range  
-✅ Debris path toggle  
-✅ Day/night lighting  
-✅ Fully responsive frontend
+### Backend
+- **Python 3.11+**
+- **FastAPI**
+- **Skyfield** – orbital mechanics
+- **Space‑Track.org** – authoritative TLE source
 
----
-
-## 📡 How It Works
-
-1. **Backend** fetches valid TLE (Two Line Element) data for orbital debris from space-track.org.
-2. **Skyfield** is used to compute current and future positions of debris in orbit.
-3. **FastAPI** serves this position data as a JSON API.
-4. **Frontend** consumes this data, displays it on a 3D globe using Cesium, and allows user interaction.
+### Frontend
+- **Next.js 15 (App Router, TS)**
+- **React 19**
+- **Tailwind CSS v4**
+- **CesiumJS 1.130** – 3D Globe / 3D Tiles
+- Deployed on **Vercel** (suggested)
 
 ---
 
-## 🚀 Getting Started (Dev Mode)
+## 🚧 Core Features
 
-### Backend (FastAPI)
+| Status | Feature |
+| :----: | ------- |
+| ✅ | Real‑time debris positions (auto‑refresh) |
+| ✅ | 3D Earth with day / night lighting |
+| ✅ | Altitude‑based colour coding |
+| ✅ | Hover & click popup information |
+| ✅ | Altitude range slider filter |
+| ✅ | Toggle future / past debris path |
+| ✅ | Fully responsive UI |
 
+---
+
+## 📡 Data Flow – _How it works_
+
+1. **FastAPI** fetches recent TLEs for *debris only* from Space‑Track.  
+2. **Skyfield** converts each TLE into a satellite object and computes the current sub‑point (`lat`, `lon`, `alt`).  
+3. The backend exposes this data at `GET /debris`.  
+4. The **Next.js** frontend polls `/debris` every 10 seconds and updates Cesium entities.  
+5. Cesium renders debris markers, optional ±5 min trail, and applies day/night lighting to the globe.
+
+---
+
+## 🛠 Getting Started (Dev Mode)
+
+### 1. Backend (FastAPI)
 
 ```bash
 cd backend
 python -m venv venv
-venv\Scripts\activate     # On Windows
+# Windows:
+venv\Scripts\activate
+# macOS/Linux:
+# source venv/bin/activate
+
 pip install -r requirements.txt
 uvicorn main:app --reload
 
-### Credits
-Skyfield
+2. Frontend (Next.js + Cesium)
+bash
+Copy code
+cd frontend
+npm install
+npm run dev
+Frontend runs at http://localhost:3000
 
-CesiumJS
 
-Space-Track.org
+🙏 Credits
+Skyfield (MIT)
 
-Next.js
+CesiumJS (Apache‑2.0)
 
-FastAPI
- 
- ### License
-This project is open source and available under the MIT License.
+Space‑Track.org – TLE data provider
+
+Next.js, React, FastAPI
+
+📄 License
+This project is open-source under the MIT License – see LICENSE for details.

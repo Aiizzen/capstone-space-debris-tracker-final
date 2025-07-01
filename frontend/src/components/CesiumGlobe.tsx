@@ -1,5 +1,3 @@
-/*  src/components/CesiumGlobe.tsx
-    ───────────────────────────────────────────── */
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -20,19 +18,23 @@ import {
 } from 'cesium';
 import 'cesium/Build/Cesium/Widgets/widgets.css';
 
-/* ---------- type coming from backend ---------- */
 export type Debris = { name: string; lat: number; lon: number; alt_km: number };
 
-/* ---------- token (only once) ---------- */
 Ion.defaultAccessToken =
   process.env.NEXT_PUBLIC_CESIUM_TOKEN || 'REPLACE_ME_WITH_YOUR_TOKEN';
 
-/* ---------- props ---------- */
 interface Props {
   debris: Debris[];
   selected: string | null;
   showPath: boolean;
   onSelect: (name: string | null) => void;
+}
+
+/** Keep sun synced to Cesium simulation time */
+function attachDynamicSun(viewer: Viewer) {
+  viewer.clock.onTick.addEventListener(() => {
+    viewer.scene.light = new SunLight(); // updates light every tick
+  });
 }
 
 export default function CesiumGlobe({
@@ -43,15 +45,13 @@ export default function CesiumGlobe({
 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const viewerRef = useRef<Viewer | null>(null);
-
-  const [viewerReady, setViewerReady] = useState(false); // ← flag
+  const [viewerReady, setViewerReady] = useState(false);
   const [trail, setTrail] = useState<Entity | null>(null);
 
-  /* ─────────── create Cesium viewer (once) ─────────── */
   useEffect(() => {
     if (!containerRef.current || viewerRef.current) return;
 
-    // @ts-ignore  (tell Cesium where assets are)
+    // @ts-ignore
     window.CESIUM_BASE_URL = '/Cesium';
 
     (async () => {
@@ -67,26 +67,24 @@ export default function CesiumGlobe({
         animation: false,
         fullscreenButton: false,
         requestRenderMode: true,
-        maximumRenderTimeChange: Infinity,
-        shouldAnimate: true,
+        maximumRenderTimeChange: 1,
+        shouldAnimate: false,
         sceneModePicker: true,
       });
 
       viewer.scene.globe.depthTestAgainstTerrain = true;
       viewer.scene.globe.enableLighting = true;
-      viewer.scene.light = new SunLight();
+      attachDynamicSun(viewer); // 🌞 dynamic sun movement
 
       viewerRef.current = viewer;
-      setViewerReady(true); // ✅ now we can add entities
+      setViewerReady(true);
     })();
   }, []);
 
-  /* ─────────── add / refresh red dots ─────────── */
   useEffect(() => {
     const v = viewerRef.current;
     if (!v || !viewerReady) return;
 
-    // remove previous dots
     v.entities.values
       .filter((e) => e.id.startsWith('DEB:'))
       .forEach((e) => v.entities.remove(e));
@@ -116,12 +114,10 @@ export default function CesiumGlobe({
     v.scene.requestRender();
   }, [debris, viewerReady]);
 
-  /* ─────────── focus + optional cyan trail ─────────── */
   useEffect(() => {
     const v = viewerRef.current;
     if (!v || !viewerReady) return;
 
-    // remove older trail
     if (trail) {
       v.entities.remove(trail);
       setTrail(null);
@@ -144,7 +140,6 @@ export default function CesiumGlobe({
       const pos = new SampledPositionProperty();
       for (let m = -5; m <= 5; m++) {
         const when = JulianDate.fromDate(new Date(Date.now() + m * 60_000));
-        // tiny fake drift so the line is visible
         const lonDrift = target.lon + 0.05 * m;
         pos.addSample(
           when,
@@ -161,10 +156,10 @@ export default function CesiumGlobe({
       });
       setTrail(ent);
     }
+
     v.scene.requestRender();
   }, [selected, showPath, viewerReady]);
 
-  /* ─────────── click‑to‑select handler ─────────── */
   useEffect(() => {
     const v = viewerRef.current;
     if (!v || !viewerReady) return;
@@ -172,7 +167,9 @@ export default function CesiumGlobe({
 
     h.setInputAction((e: any) => {
       const picked = v.scene.pick(e.position);
-      if (picked && picked.id?.name) onSelect(picked.id.name);
+      if (picked && picked.id?.name) {
+        onSelect(picked.id.name);
+      }
     }, ScreenSpaceEventType.LEFT_CLICK);
 
     return () => h.destroy();

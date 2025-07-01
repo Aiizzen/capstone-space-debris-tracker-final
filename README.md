@@ -4,7 +4,10 @@ A real‑time, full‑stack web application that visualises orbital debris aroun
 **Backend:** FastAPI + Skyfield + Space‑Track API  
 **Frontend:** Next.js (React + TypeScript) + CesiumJS + Tailwind CSS
 
-![Screenshot](./frontend/public/screenshot.png)
+## 🖼 Preview
+
+![Space Debris Tracker Preview](./frontend/public/screenshot.png)
+
 
 ---
 

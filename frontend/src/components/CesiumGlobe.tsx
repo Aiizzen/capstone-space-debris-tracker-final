@@ -59,8 +59,10 @@ export default function CesiumGlobe({
         (await createWorldTerrainAsync().catch(() => undefined)) ||
         new EllipsoidTerrainProvider();
 
-      const viewer = new Viewer(containerRef.current, {
-        terrainProvider: terrain,
+      if (!containerRef.current) return;
+
+const viewer = new Viewer(containerRef.current as Element, {
+  terrainProvider: terrain,
         geocoder: false,
         baseLayerPicker: false,
         timeline: false,

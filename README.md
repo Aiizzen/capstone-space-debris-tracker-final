@@ -65,7 +65,7 @@ venv\Scripts\activate     # On Windows
 pip install -r requirements.txt
 uvicorn main:app --reload
 
-✨ Credits
+### Credits
 Skyfield
 
 CesiumJS
@@ -76,5 +76,5 @@ Next.js
 
 FastAPI
  
- 📜 License
+ ### License
 This project is open source and available under the MIT License.
